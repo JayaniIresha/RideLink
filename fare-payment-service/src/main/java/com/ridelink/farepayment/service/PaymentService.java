@@ -7,6 +7,7 @@ import com.ridelink.farepayment.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class PaymentService {
@@ -16,6 +17,10 @@ public class PaymentService {
     public PaymentService(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
     }
+
+    // =========================
+    // EXISTING PAYMENT CREATE
+    // =========================
 
     public Payment createPayment(
             String rideId,
@@ -33,6 +38,10 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
 
+    // =========================
+    // EXISTING STATUS UPDATE
+    // =========================
+
     public Payment updatePaymentStatus(
             String paymentId,
             String status) {
@@ -47,6 +56,10 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
 
+    // =========================
+    // EXISTING GET PAYMENT
+    // =========================
+
     public Payment getPayment(String paymentId) {
 
         return paymentRepository
@@ -54,6 +67,10 @@ public class PaymentService {
                 .orElseThrow(() ->
                         new PaymentNotFoundException("Payment not found"));
     }
+
+    // =========================
+    // EXISTING RECEIPT
+    // =========================
 
     public Receipt generateReceipt(String paymentId) {
 
@@ -73,5 +90,72 @@ public class PaymentService {
         receipt.setPaymentDate(payment.getPaymentDate());
 
         return receipt;
+    }
+
+    // =========================
+    // CRUD OPERATIONS
+    // =========================
+
+    // CREATE
+    public Payment createPaymentRecord(Payment payment) {
+
+        return paymentRepository.save(payment);
+    }
+
+    // READ - Get all payments
+    public List<Payment> getAllPayments() {
+
+        return paymentRepository.findAll();
+    }
+
+    // READ - Get payment by ID
+    public Payment getPaymentById(String id) {
+
+        return paymentRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new PaymentNotFoundException(
+                                "Payment not found"));
+    }
+
+    // UPDATE
+    public Payment updatePayment(
+            String id,
+            Payment updatedPayment) {
+
+        Payment existingPayment =
+                paymentRepository.findById(id)
+                        .orElseThrow(() ->
+                                new PaymentNotFoundException(
+                                        "Payment not found"));
+
+        existingPayment.setRideId(
+                updatedPayment.getRideId());
+
+        existingPayment.setAmount(
+                updatedPayment.getAmount());
+
+        existingPayment.setPaymentMethod(
+                updatedPayment.getPaymentMethod());
+
+        existingPayment.setStatus(
+                updatedPayment.getStatus());
+
+        existingPayment.setPaymentDate(
+                updatedPayment.getPaymentDate());
+
+        return paymentRepository.save(existingPayment);
+    }
+
+    // DELETE
+    public void deletePayment(String id) {
+
+        if (!paymentRepository.existsById(id)) {
+
+            throw new PaymentNotFoundException(
+                    "Payment not found");
+        }
+
+        paymentRepository.deleteById(id);
     }
 }
